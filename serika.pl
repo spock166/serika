@@ -52,11 +52,11 @@ sub parse_kby_file{
     while(<kbyHandler>){
         if($_ =~ /^\@{2}/){
             print htmlHandler "<h2>\n";
-            print htmlHandler substr($_,2);
+            print htmlHandler parse_kby_line(substr($_,2));
             print htmlHandler "</h2>\n";
         }elsif($_ =~ /^\@{1}/){
             print htmlHandler "<h1>\n";
-            print htmlHandler substr($_,1);
+            print htmlHandler parse_kby_line(substr($_,1));
             print htmlHandler "</h1>\n";
         }elsif($previous_line eq "\n"and not ($_ =~ /^\s*$/)){
             print htmlHandler "</p>\n<p>\n";
@@ -91,7 +91,7 @@ sub parse_kby_line{
 
     $line = $_[0];
     $tempChar = chr(0);
-    $line =~ s/\"\"\*/$tempChar/;
+    $line =~ s/\\\*/$tempChar/;
 
     $beginBold = "<b>";
     $endBold = "</b>";
@@ -100,7 +100,7 @@ sub parse_kby_line{
 
     $line =~ s/$tempChar/\*/;
 
-    $line =~ s/\"\"\//$tempChar/;
+    $line =~ s/\\\//$tempChar/;
 
     $beginItal = "<em>";
     $endItal = "</em>";
@@ -108,6 +108,10 @@ sub parse_kby_line{
     $line =~ s/\/(.+)\//$beginItal . $1 . $endItal/ge;
 
     $line =~ s/$tempChar/\//;
+
+    $line =~ s/\\{2}/$tempChar/;
+
+    $line =~ s/$tempChar/\\/;
     
 
     return $line;
