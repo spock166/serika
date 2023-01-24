@@ -17,6 +17,7 @@ if($option eq 1){
 
 }while(($option ne 2)&&($option ne ""));
 
+#Opens kby file for processing.
 sub get_file{
     do{
         print "Enter in the kby file you want to parse okay?";
@@ -36,6 +37,7 @@ sub get_file{
     return $file;
 }
 
+#Parses kby file to HTML line by line.
 sub parse_kby_file{
     $file = &get_file();
     if($file eq ""){
@@ -83,6 +85,7 @@ sub parse_kby_file{
     close(kbyHandler);
 }
 
+#Processes an individual line of a kby file.
 sub parse_kby_line{
     $n = scalar(@_);
     if($n==0){
@@ -91,16 +94,15 @@ sub parse_kby_line{
 
     $line = $_[0];
     $tempChar = chr(0);
-    $line =~ s/\\\*/$tempChar/;
 
-    $beginBold = "<b>";
-    $endBold = "</b>";
-
-    $line =~ s/\*(.+)\*/$beginBold . $1 . $endBold/ge;
-
-    $line =~ s/$tempChar/\*/;
-
+    #Deal with slashes first because HTML tags use them which makes Serika sad.
+    #A better way to do this might be to sub in HTML tags at the very end of the routine.  But that's a future developer problem.
     $line =~ s/\\\//$tempChar/;
+
+    $numMatches = () = $line =~ /\//g;
+    if($numMatches%2 == 1){
+        die "Unmatched \/ found while parsing:\n".$line."\nThat is not okay. :(";
+    }
 
     $beginItal = "<em>";
     $endItal = "</em>";
@@ -109,7 +111,29 @@ sub parse_kby_line{
 
     $line =~ s/$tempChar/\//;
 
+
+    #Process * next.
+    $line =~ s/\\\*/$tempChar/;
+
+    $numMatches = () = $line =~ /\*/g;
+    if($numMatches%2 == 1){
+        die "Unmatched \* found while parsing:\n".$line."\nThat is not okay. :(";
+    }
+
+    $beginBold = "<b>";
+    $endBold = "</b>";
+
+    $line =~ s/\*(.+)\*/$beginBold . $1 . $endBold/ge;
+
+    $line =~ s/$tempChar/\*/;
+
+    #Finally take care of any remaining escape characters.
     $line =~ s/\\{2}/$tempChar/;
+    
+    $numMatches = () = $line =~ /\\/g;
+    if($numMatches%2 == 1){
+        die "Free \\ found while parsing:\n".$line."\nThat is not okay. :(";
+    }
 
     $line =~ s/$tempChar/\\/;
     

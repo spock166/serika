@@ -1,5 +1,5 @@
 @Hello, world!
-@@This is a /subheader/.
+@@This *is a /subheader/*.
 Mai *best \* girl*.
 /Kuroneko is \/ *brilliant*/.
 
@@ -7,6 +7,6 @@ I do not take criticism.
 
 
 
-multiple newlines.
+*multiple newlines*. 
 
 Take this emptry string and hide it: \\
